@@ -25,8 +25,10 @@ Daarnaast bevat het project:
 
 ## 2. Onderzoeksvraag
 
-**Hoe kan NLP worden ingezet om cv’s automatisch te matchen met relevante vacatures op basis van tekstuele overeenkomst en semantische betekenis?**
+**Hoe kunnen cv’s automatisch worden gekoppeld aan passende vacatures met behulp van NLP-technieken zoals TF-IDF en semantic matching?**
 
+## Hypothese
+De verwachting is dat semantic matching met Sentence Transformers betere vacaturematches oplevert dan TF-IDF, omdat semantic matching de betekenis van tekst begrijpt en daardoor ook overeenkomsten kan herkennen wanneer verschillende woorden worden gebruikt voor vergelijkbare vaardigheden, functies of werkervaringen.
 ---
 
 ## 3. Projectstructuur

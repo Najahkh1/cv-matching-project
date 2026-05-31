@@ -1,0 +1,21 @@
+resume_index,model,job_title,role,company,score
+0,TF-IDF,Data Engineer,Big Data Engineer,Lendlease Group,0.4772413009017212
+0,Semantic,Data Engineer,Big Data Engineer,"Fidelity Investments, Inc.",0.6437762975692749
+1,TF-IDF,Data Scientist,Machine Learning Engineer,Victrex,0.5826328502740151
+1,Semantic,Business Analyst,Data Business Analyst,American Tower,0.715449333190918
+2,TF-IDF,Data Scientist,Machine Learning Engineer,Victrex,0.3830383728481323
+2,Semantic,Data Scientist,Machine Learning Engineer,Victrex,0.5061307549476624
+3,TF-IDF,Account Manager,Sales Account Manager,BYD Company,0.3595692749549099
+3,Semantic,Account Executive,Sales Account Executive,China Eastern Airlines,0.6844656467437744
+4,TF-IDF,Accountant,Financial Accountant,Huntsman,0.44600154174888845
+4,Semantic,Accountant,Financial Accountant,Huntsman,0.7132200002670288
+5,TF-IDF,IT Support Specialist,Desktop Support Technician,Corteva,0.30628647090048533
+5,Semantic,Network Administrator,Network Engineer,HeidelbergCement AG,0.6549652814865112
+6,TF-IDF,Data Scientist,Machine Learning Engineer,Victrex,0.18003076075300015
+6,Semantic,Data Scientist,Machine Learning Engineer,Victrex,0.5010230541229248
+7,TF-IDF,Electrical Designer,Electrical Engineer,Regions Financial,0.4548065140106469
+7,Semantic,Electrical Designer,Electrical Engineer,"Revlon, Inc.",0.7061669826507568
+8,TF-IDF,Data Analyst,Data Scientist,AES,0.44207741790976596
+8,Semantic,Data Scientist,Machine Learning Engineer,Victrex,0.5981294512748718
+9,TF-IDF,Procurement Manager,Strategic Sourcing Manager,Commerzbank AG,0.24914202014991266
+9,Semantic,Software Engineer,Backend Developer,Cintas,0.5893030166625977
