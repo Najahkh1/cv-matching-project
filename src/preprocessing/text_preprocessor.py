@@ -1,25 +1,31 @@
 import re
-import pandas as pd
 
+import pandas as pd
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 
 
 class TextPreprocessor:
     """
-    Class voor het schoonmaken en voorbereiden van tekstdata.
+    Klasse voor het schoonmaken en voorbereiden van tekstdata voor NLP.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """
-        Initialiseert stopwoorden en lemmatizer.
+        Initialiseert Engelse stopwoorden en de WordNet lemmatizer.
         """
         self.stop_words = set(stopwords.words("english"))
         self.lemmatizer = WordNetLemmatizer()
 
-    def clean_column_names(self, df):
+    def clean_column_names(self, df: pd.DataFrame) -> pd.DataFrame:
         """
         Verwijdert verborgen tekens en extra spaties uit kolomnamen.
+
+        Parameters:
+            df (pd.DataFrame): Dataset met originele kolomnamen.
+
+        Returns:
+            pd.DataFrame: Dataset met opgeschoonde kolomnamen.
         """
         df = df.copy()
 
@@ -31,38 +37,59 @@ class TextPreprocessor:
 
         return df
 
-    def clean_text(self, text):
+    def clean_text(self, text: str) -> str:
         """
-        Maakt tekst schoon voor NLP:
-        - zet tekst naar lowercase
+        Maakt tekst schoon voor NLP-verwerking.
+
+        Stappen:
+        - zet tekst om naar lowercase
         - verwijdert speciale tekens
         - verwijdert dubbele spaties
         - verwijdert stopwoorden
         - past lemmatization toe
+
+        Parameters:
+            text (str): Originele tekst.
+
+        Returns:
+            str: Opgeschoonde tekst.
         """
         if pd.isna(text):
             return ""
 
-        text = str(text)
-        text = text.lower()
-
+        text = str(text).lower()
         text = re.sub(r"[^a-zA-Z0-9\s]", " ", text)
         text = re.sub(r"\s+", " ", text).strip()
 
         words = text.split()
 
-        cleaned_words = []
-
-        for word in words:
-            if word not in self.stop_words:
-                lemma = self.lemmatizer.lemmatize(word)
-                cleaned_words.append(lemma)
+        cleaned_words = [
+            self.lemmatizer.lemmatize(word)
+            for word in words
+            if word not in self.stop_words
+        ]
 
         return " ".join(cleaned_words)
 
-    def combine_columns(self, df, columns, new_column_name):
+    def combine_columns(
+        self,
+        df: pd.DataFrame,
+        columns: list[str],
+        new_column_name: str,
+    ) -> pd.DataFrame:
         """
-        Combineert meerdere tekstkolommen naar één nieuwe tekstkolom.
+        Combineert meerdere tekstkolommen naar één nieuwe opgeschoonde tekstkolom.
+
+        Ontbrekende kolommen worden automatisch aangemaakt als lege kolom,
+        zodat de pipeline niet direct crasht bij kleine kolomverschillen.
+
+        Parameters:
+            df (pd.DataFrame): Dataset met tekstkolommen.
+            columns (list[str]): Kolommen die gecombineerd worden.
+            new_column_name (str): Naam van de nieuwe tekstkolom.
+
+        Returns:
+            pd.DataFrame: Dataset met nieuwe gecombineerde tekstkolom.
         """
         df = df.copy()
 
@@ -80,22 +107,3 @@ class TextPreprocessor:
         df[new_column_name] = df[new_column_name].apply(self.clean_text)
 
         return df
-
-
-# Uitleg:
-#
-# Deze class doet drie belangrijke dingen:
-#
-# 1. clean_column_names()
-#    Maakt kolomnamen schoon, bijvoorbeeld '\ufeffjob_position_name'
-#    wordt 'job_position_name'.
-#
-# 2. clean_text()
-#    Maakt tekst geschikt voor NLP door lowercase, regex cleaning,
-#    stopwords removal en lemmatization toe te passen.
-#
-# 3. combine_columns()
-#    Combineert meerdere relevante kolommen naar één tekstkolom,
-#    zoals job_text of resume_text.
-#
-# Dit is nodig voordat we TF-IDF, cosine similarity of embeddings gebruiken.

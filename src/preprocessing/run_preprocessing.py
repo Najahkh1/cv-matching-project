@@ -3,13 +3,31 @@ from preprocessing.text_preprocessor import TextPreprocessor
 from preprocessing.deduplicator import Deduplicator
 
 
-def main():
-    loader = DataLoader(
-        "data/raw/job_descriptions.csv",
-        "data/raw/resume_data.csv"
-    )
+JOBS_PATH = "data/raw/job_descriptions.csv"
+RESUMES_PATH = "data/raw/resume_data.csv"
 
-    jobs_df, resumes_df = loader.load_all()
+PROCESSED_JOBS_PATH = "data/processed/jobs_processed.csv"
+PROCESSED_RESUMES_PATH = "data/processed/resumes_processed.csv"
+
+
+def main():
+    """
+    Hoofdscript voor de preprocessing pipeline.
+
+    Stappen:
+    1. Laad vacature- en cv-data.
+    2. Schoon kolomnamen op.
+    3. Combineer relevante tekstkolommen.
+    4. Verwijder dubbele vacatures.
+    5. Sla de verwerkte datasets op.
+    """
+    loader = DataLoader(JOBS_PATH, RESUMES_PATH)
+
+    try:
+        jobs_df, resumes_df = loader.load_all()
+    except FileNotFoundError as error:
+        print(f"Fout bij laden van data: {error}")
+        return
 
     preprocessor = TextPreprocessor()
     deduplicator = Deduplicator()
@@ -25,9 +43,9 @@ def main():
             "Job Description",
             "skills",
             "Responsibilities",
-            "Qualifications"
+            "Qualifications",
         ],
-        "job_text"
+        "job_text",
     )
 
     resumes_df = preprocessor.combine_columns(
@@ -38,24 +56,25 @@ def main():
             "degree_names",
             "positions",
             "certification_skills",
-            "job_position_name"
+            "job_position_name",
         ],
-        "resume_text"
+        "resume_text",
     )
 
     jobs_df = deduplicator.remove_duplicates(
         jobs_df,
-        subset_columns=["job_text"]
+        subset_columns=["job_text"],
     )
 
-    jobs_df.to_csv("data/processed/jobs_processed.csv", index=False)
-    resumes_df.to_csv("data/processed/resumes_processed.csv", index=False)
+    jobs_df.to_csv(PROCESSED_JOBS_PATH, index=False)
+    resumes_df.to_csv(PROCESSED_RESUMES_PATH, index=False)
 
-    print("Preprocessing completed.")
-    print("Saved: data/processed/jobs_processed.csv")
-    print("Saved: data/processed/resumes_processed.csv")
-    print("Jobs shape:", jobs_df.shape)
-    print("Resumes shape:", resumes_df.shape)
+    print("\nPreprocessing succesvol afgerond")
+    print("-" * 40)
+    print(f"Opgeslagen: {PROCESSED_JOBS_PATH}")
+    print(f"Opgeslagen: {PROCESSED_RESUMES_PATH}")
+    print(f"Jobs shape: {jobs_df.shape}")
+    print(f"Resumes shape: {resumes_df.shape}")
 
 
 if __name__ == "__main__":

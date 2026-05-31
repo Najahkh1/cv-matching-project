@@ -1,64 +1,82 @@
 import pandas as pd
-pd.set_option("display.max_columns", None)
-
-pd.set_option("display.width", 200)
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
 
 class TFIDFMatcher:
+    """
+    TF-IDF matcher voor het vergelijken van cv-tekst met vacatureteksten.
+    """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """
-        TF-IDF vectorizer object.
+        Initialiseert de TF-IDF vectorizer.
         """
         self.vectorizer = TfidfVectorizer(stop_words="english")
+        self.jobs_matrix = None
 
-    def fit_transform_jobs(self, jobs_text):
+    def fit_transform_jobs(self, jobs_text: pd.Series) -> None:
         """
-        Maak TF-IDF matrix van vacatures.
+        Maakt een TF-IDF matrix van alle vacatureteksten.
+
+        Parameters:
+            jobs_text (pd.Series): Tekstkolom met opgeschoonde vacatureteksten.
         """
         self.jobs_matrix = self.vectorizer.fit_transform(jobs_text)
 
-    def transform_resume(self, resume_text):
+    def transform_resume(self, resume_text: str):
         """
-        Zet resume tekst om naar TF-IDF vector.
+        Zet één cv-tekst om naar dezelfde TF-IDF vectorruimte.
+
+        Parameters:
+            resume_text (str): Opgeschoonde cv-tekst.
+
+        Returns:
+            sparse matrix: TF-IDF vector van de cv-tekst.
         """
         return self.vectorizer.transform([resume_text])
 
-    def match_resume_to_jobs(self, resume_text, jobs_df, top_n=5):
+    def match_resume_to_jobs(
+        self,
+        resume_text: str,
+        jobs_df: pd.DataFrame,
+        top_n: int = 5,
+    ) -> pd.DataFrame:
         """
-        Zoek beste matches tussen een CV en vacatures.
+        Vergelijkt één cv met alle vacatures en geeft de top-N matches terug.
+
+        Parameters:
+            resume_text (str): Opgeschoonde cv-tekst.
+            jobs_df (pd.DataFrame): Vacaturedataset.
+            top_n (int): Aantal matches dat teruggegeven wordt.
+
+        Returns:
+            pd.DataFrame: Top-N vacatures met similarity score.
         """
+        if self.jobs_matrix is None:
+            raise ValueError("Voer eerst fit_transform_jobs() uit.")
 
         resume_vector = self.transform_resume(resume_text)
 
         similarity_scores = cosine_similarity(
             resume_vector,
-            self.jobs_matrix
-        )
+            self.jobs_matrix,
+        ).flatten()
 
-        similarity_scores = similarity_scores.flatten()
+        results_df = jobs_df.copy()
+        results_df["similarity_score"] = similarity_scores
 
-        jobs_df = jobs_df.copy()
-
-        jobs_df["similarity_score"] = similarity_scores
-
-        top_matches = jobs_df.sort_values(
+        top_matches = results_df.sort_values(
             by="similarity_score",
-            ascending=False
+            ascending=False,
         ).head(top_n)
 
-        return top_matches[
-            [
-                "Job Title",
-                "Role",
-                "Company",
-                "similarity_score",
-                "Job Description"
-            ]
+        output_columns = [
+            "Job Title",
+            "Role",
+            "Company",
+            "similarity_score",
+            "Job Description",
         ]
-#TFidfvectorizaer zet tekst om naar cijfers/vectoren
-#fit_transform_jobs() leert welke woorden bestaan? welke worden belangrijk zijn op basis van vacatures
-#transform_resume() gebruikt dezelfde woordruimte voor cv's dit is belangrijk anders kan ik vertoren niet vergelijken
-#cosine_similarity berken ik hiermee hoeveel lijken cv en vacature op elkaar => dan moet ik gaan testen
+
+        return top_matches[output_columns]

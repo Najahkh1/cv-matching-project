@@ -3,30 +3,48 @@ import pandas as pd
 
 class DataLoader:
     """
-    Class voor het laden van de vacature- en cv-datasets.
+    Klasse voor het laden van vacature- en cv-datasets.
     """
 
-    def __init__(self, jobs_path, resumes_path):
+    def __init__(self, jobs_path: str, resumes_path: str):
         self.jobs_path = jobs_path
         self.resumes_path = resumes_path
 
-    def load_jobs(self):
+    def load_jobs(self) -> pd.DataFrame:
         """
-        Laadt de vacature dataset.
-        """
-        jobs_df = pd.read_csv(self.jobs_path)
-        return jobs_df
+        Laadt de vacaturedataset.
 
-    def load_resumes(self):
+        Returns:
+            pd.DataFrame: DataFrame met vacaturegegevens.
         """
-        Laadt de cv dataset.
-        """
-        resumes_df = pd.read_csv(self.resumes_path)
-        return resumes_df
+        try:
+            return pd.read_csv(self.jobs_path)
+        except FileNotFoundError:
+            raise FileNotFoundError(
+                f"Vacaturebestand niet gevonden: {self.jobs_path}"
+            )
 
-    def load_all(self):
+    def load_resumes(self) -> pd.DataFrame:
         """
-        Laadt beide datasets tegelijk.
+        Laadt de cv-dataset.
+
+        Returns:
+            pd.DataFrame: DataFrame met cv-gegevens.
+        """
+        try:
+            return pd.read_csv(self.resumes_path)
+        except FileNotFoundError:
+            raise FileNotFoundError(
+                f"CV-bestand niet gevonden: {self.resumes_path}"
+            )
+
+    def load_all(self) -> tuple[pd.DataFrame, pd.DataFrame]:
+        """
+        Laadt beide datasets.
+
+        Returns:
+            tuple[pd.DataFrame, pd.DataFrame]:
+            Vacaturedataset en cv-dataset.
         """
         jobs_df = self.load_jobs()
         resumes_df = self.load_resumes()

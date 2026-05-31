@@ -1,4 +1,3 @@
-import numpy as np
 import pandas as pd
 
 from sentence_transformers import SentenceTransformer
@@ -6,43 +5,57 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 
 class SemanticMatcher:
+    """
+    Semantic matcher op basis van Sentence Transformers.
+    """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """
-        Semantic embedding model laden.
+        Laadt het embedding model.
         """
         self.model = SentenceTransformer(
             "sentence-transformers/all-MiniLM-L6-v2"
         )
+        self.job_embeddings = None
 
-    def fit_jobs(self, jobs_text):
+    def fit_jobs(self, jobs_text: pd.Series) -> None:
         """
-        Maak embeddings voor vacatures.
+        Genereert embeddings voor alle vacatures.
         """
         self.job_embeddings = self.model.encode(
             jobs_text,
             show_progress_bar=True
         )
 
-    def match_resume_to_jobs(self, resume_text, jobs_df, top_n=5):
+    def match_resume_to_jobs(
+        self,
+        resume_text: str,
+        jobs_df: pd.DataFrame,
+        top_n: int = 5
+    ) -> pd.DataFrame:
         """
-        Zoek semantic matches tussen CV en vacatures.
+        Vergelijkt een cv met alle vacatures
+        en retourneert de top-N matches.
         """
 
-        resume_embedding = self.model.encode([resume_text])
+        if self.job_embeddings is None:
+            raise ValueError(
+                "Voer eerst fit_jobs() uit."
+            )
+
+        resume_embedding = self.model.encode(
+            [resume_text]
+        )
 
         similarity_scores = cosine_similarity(
             resume_embedding,
             self.job_embeddings
-        )
+        ).flatten()
 
-        similarity_scores = similarity_scores.flatten()
+        results_df = jobs_df.copy()
+        results_df["similarity_score"] = similarity_scores
 
-        jobs_df = jobs_df.copy()
-
-        jobs_df["similarity_score"] = similarity_scores
-
-        top_matches = jobs_df.sort_values(
+        top_matches = results_df.sort_values(
             by="similarity_score",
             ascending=False
         ).head(top_n)
@@ -56,5 +69,3 @@ class SemanticMatcher:
                 "Job Description"
             ]
         ]
-#deze code kijkt vooral woord overlap en semactic model kijkt naar betekenis/context
-# dus synoniemen, functierelatie, context en semantiche overeenkomsten
